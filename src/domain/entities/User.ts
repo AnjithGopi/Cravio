@@ -40,7 +40,7 @@ export class User {
     return this.mobile;
   }
 
-  getRole():string {
+  getRole():UserRole {
     return this.role;
   }
 }
