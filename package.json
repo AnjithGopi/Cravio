@@ -15,5 +15,8 @@
     "nodemon": "^3.1.14",
     "tsx": "^4.23.12",
     "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "mongoose": "^9.10.3"
   }
 }
