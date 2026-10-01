@@ -37,6 +37,7 @@ class RegisterUserUseCase {
       email: savedUser.getEmail(),
       mobile: savedUser.getMobile(),
       role: savedUser.getRole(),
+      
     };
 
     return response;
