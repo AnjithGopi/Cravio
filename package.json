@@ -11,12 +11,14 @@
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^26.2.0",
     "nodemon": "^3.1.14",
     "tsx": "^4.23.12",
     "typescript": "^7.0.2"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "mongoose": "^9.10.3"
   }
 }
