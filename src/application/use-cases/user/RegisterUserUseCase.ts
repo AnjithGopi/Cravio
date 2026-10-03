@@ -21,25 +21,20 @@ class RegisterUserUseCase {
       request.password,
     );
 
-    const userData = {
+    const savedUser = await this._userRepository.create({
       name: request.name,
       email: request.email,
       mobile: request.mobile,
       passwordHash: passwordHash,
       role: UserRole.CUSTOMER,
-    };
+    });
 
-    const savedUser = await this._userRepository.create(userData);
-
-    const response: UserResponseDTO = {
+    return {
       id: savedUser.getId(),
       name: savedUser.getName(),
       email: savedUser.getEmail(),
       mobile: savedUser.getMobile(),
       role: savedUser.getRole(),
-      
     };
-
-    return response;
   }
 }
