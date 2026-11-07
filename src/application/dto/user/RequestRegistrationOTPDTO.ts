@@ -1,4 +1,4 @@
-export interface RegisterUserDTO {
+export interface RequestRegistrationOTPDTO {
   readonly email: string;
   readonly name: string;
   readonly mobile: string;

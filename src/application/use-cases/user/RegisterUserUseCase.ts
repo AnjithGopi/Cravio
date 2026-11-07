@@ -1,6 +1,6 @@
 import type { IUserRepository } from "../../interfaces/repositories/IUserRepository.js";
 import type { IPasswordService } from "../../interfaces/services/IPasswordService.js";
-import type { RegisterUserDTO } from "../../dto/user/RegisterUserDTO.js";
+import type { RequestRegistrationOTPDTO } from "../../dto/user/RequestRegistrationOTPDTO.js";
 import { UserRole } from "../../../domain/enums/UserRole.js";
 import type { UserResponseDTO } from "../../dto/user/UserResponseDTO.js";
 
@@ -10,7 +10,7 @@ class RegisterUserUseCase {
     private _passwordService: IPasswordService,
   ) {}
 
-  async execute(request: RegisterUserDTO): Promise<UserResponseDTO> {
+  async execute(request: RequestRegistrationOTPDTO): Promise<UserResponseDTO> {
     const existingUser = await this._userRepository.findByEmail(request.email);
 
     if (existingUser) {
