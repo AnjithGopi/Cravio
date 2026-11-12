@@ -1,8 +1,15 @@
+import { injectable,inject } from "inversify";
 import type { PendingRegistrationData } from "../../../../application/dto/user/PendingRegistrationData.js";
 import type { IPendingRegistrationRepository } from "../../../../application/interfaces/repositories/IPendingRegistrationRepository.js";
 import type { RedisClientType } from "redis";
+import { TYPES } from "../../../di/types.js";
+
+
+@injectable()
 export class RedisPendingRegistrationRepository implements IPendingRegistrationRepository {
-  constructor(private readonly redisClient: RedisClientType) {}
+  constructor(
+    @inject(TYPES.RedisClient)
+    private readonly redisClient: RedisClientType) {}
   private readonly expiresIn = 300;
 
   async savePendingRegistration(data: PendingRegistrationData): Promise<void> {

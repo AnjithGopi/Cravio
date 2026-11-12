@@ -1,6 +1,8 @@
+import { injectable } from "inversify";
 import type { IOTPService } from "../../application/interfaces/services/IOTPService.js";
 import { randomInt, createHmac, timingSafeEqual } from "node:crypto";
 
+@injectable()
 export class CryptoOTPService implements IOTPService {
   private readonly value = "0";
   private readonly hashingAlgorithm = "sha256";

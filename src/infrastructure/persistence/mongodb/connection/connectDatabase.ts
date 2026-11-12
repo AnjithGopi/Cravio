@@ -8,4 +8,5 @@ export async function connectDatabase() {
   }
 
   await mongoose.connect(mongoURL);
+  console.log("Database connection success")
 }

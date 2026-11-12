@@ -14,6 +14,7 @@ export class RedisConnection {
   async connect(): Promise<void> {
     if (!this.client.isOpen) {
       await this.client.connect();
+      console.log("Redis connection success")
     }
   }
 

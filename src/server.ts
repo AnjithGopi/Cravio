@@ -1,8 +1,6 @@
 import { connectDatabase } from "./infrastructure/persistence/mongodb/connection/connectDatabase.js";
-import { RedisConnection } from "./infrastructure/persistence/redis/RedisConnection.js";
+import { redisConnection } from "./infrastructure/di/container.js";
 import app from "./app.js";
-
-const redisConnection = new RedisConnection();
 
 async function startServer(): Promise<void> {
   try {
@@ -13,7 +11,7 @@ async function startServer(): Promise<void> {
     });
   } catch (error) {
     console.error(`Error in starting server${error}`);
-    process.exit(1)
+    process.exit(1);
   }
 }
 

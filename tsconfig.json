@@ -8,6 +8,8 @@
     "outDir": "./dist",
 
     "types": ["node"],
+    "experimentalDecorators": true,
+   "emitDecoratorMetadata": true,
 
     "sourceMap": true,
     "declaration": true,
