@@ -13,5 +13,10 @@ customerAuthRouter
   .post(
     customerAuthController.requestRegistrationOTP.bind(customerAuthController),
   );
+customerAuthRouter
+  .route("/register/verify-otp")
+  .post(
+    customerAuthController.verifyRegistrationOTP.bind(customerAuthController),
+  );
 
 export default customerAuthRouter;

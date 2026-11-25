@@ -7,4 +7,5 @@ export const TYPES = {
   IPendingRegistrationRepository: Symbol.for("IPendingRegistrationRepository"),
   IUserRepository: Symbol.for("IUserRepository"),
   RedisClient: Symbol.for("RedisClient"),
+  VerifyRegistrationOTPUseCase: Symbol.for("VerifyRegistrationOTPUseCase"),
 } as const;

@@ -5,6 +5,7 @@ import type { IPasswordService } from "../../interfaces/services/IPasswordServic
 import type { IOTPService } from "../../interfaces/services/IOTPService.js";
 import type { PendingRegistrationData } from "../../dto/user/PendingRegistrationData.js";
 import type { IEmailService } from "../../interfaces/services/IEmailService.js";
+import { AppError } from "../../errors/AppError.js";
 
 export class RequestRegistrationOTPUseCase {
   constructor(
@@ -18,9 +19,10 @@ export class RequestRegistrationOTPUseCase {
   private readonly initialFailedAttempt = 0;
   async execute(request: RequestRegistrationOTPDTO) {
     const userExists = await this._userRepository.findByEmail(request.email);
+    console.log(userExists);
 
     if (userExists) {
-      throw new Error("User Already Exists");
+      throw new AppError("Email Already Exists", " EMAIL_ALREADY_EXISTS");
     }
 
     const passwordHash = await this._passwordService.hashPassword(

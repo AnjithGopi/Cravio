@@ -6,4 +6,5 @@ export interface IPendingRegistrationRepository {
     email: string,
   ): Promise<PendingRegistrationData | null>;
   deletePendingRegistration(email: string): Promise<void>;
+  incrementFailedAttempts(email: string): Promise<number | null>;
 }

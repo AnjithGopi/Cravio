@@ -14,6 +14,7 @@ import { UserRepository } from "../persistence/mongodb/repositories/UserReposito
 import { CustomerAuthController } from "../../presentation/controllers/customer/CustomerAuthController.js";
 import type { RedisClientType } from "@redis/client";
 import { RedisConnection } from "../persistence/redis/RedisConnection.js";
+import { VerifyRegistrationOTPUseCase } from "../../application/use-cases/user/VerifyRegistrationOTPUseCase.js";
 
 const redisConnection = new RedisConnection();
 const redisClient = redisConnection.getClient();
@@ -50,6 +51,18 @@ container
       emailService,
     );
   });
+
+container
+  .bind<VerifyRegistrationOTPUseCase>(TYPES.VerifyRegistrationOTPUseCase)
+  .toDynamicValue((context) => {
+    const pendingRepository = context.get<IPendingRegistrationRepository>(
+      TYPES.IPendingRegistrationRepository,
+    );
+    const otpService = context.get<IOTPService>(TYPES.IOTPService);
+    const userRepository=context.get<IUserRepository>(TYPES.IUserRepository)
+
+    return new VerifyRegistrationOTPUseCase(pendingRepository, otpService,userRepository);
+  });
 container
   .bind<CustomerAuthController>(TYPES.CustomerAuthController)
   .toDynamicValue((context) => {
@@ -57,7 +70,15 @@ container
       context.get<RequestRegistrationOTPUseCase>(
         TYPES.RequestRegistrationOTPUseCase,
       );
-    return new CustomerAuthController(requestRegistrationOTPUseCase);
+
+    const verifyRegistrationOTPUseCase =
+      context.get<VerifyRegistrationOTPUseCase>(
+        TYPES.VerifyRegistrationOTPUseCase,
+      );
+    return new CustomerAuthController(
+      requestRegistrationOTPUseCase,
+      verifyRegistrationOTPUseCase,
+    );
   });
 container.bind<RedisClientType>(TYPES.RedisClient).toConstantValue(redisClient);
 
