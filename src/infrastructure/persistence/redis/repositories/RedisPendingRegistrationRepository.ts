@@ -10,37 +10,74 @@ export class RedisPendingRegistrationRepository implements IPendingRegistrationR
     @inject(TYPES.RedisClient)
     private readonly redisClient: RedisClientType,
   ) {}
-  private readonly keyString = "registration:otp:";
-  private readonly expiresIn = 300;
+  private readonly keyPrefix = "registration:otp:";
+  private readonly expiresIn = 180;
+  private readonly incrementFailedAttemptsScript = `local exists =redis.call("EXISTS",KEYS[1])
+    if exists==0 then 
+    return nil
+    end 
+    return redis.call("HINCRBY",KEYS[1],"failedAttempts,1")`;
 
   private generateKey(email: string) {
-    return this.keyString + email;
+    return this.keyPrefix + email;
   }
 
   async savePendingRegistration(data: PendingRegistrationData): Promise<void> {
     const key = this.generateKey(data.email);
-    const stringifiedData = JSON.stringify(data);
 
-    await this.redisClient.set(key, stringifiedData, {
-      EX: this.expiresIn,
-    });
+    await this.redisClient
+      .multi()
+      .hSet(key, {
+        name: data.name,
+        email: data.email,
+        mobile: data.mobile,
+        passwordHash: data.passwordHash,
+        otpHash: data.otpHash,
+        failedAttempts: data.failedAttempts,
+      })
+      .expire(key, this.expiresIn)
+      .exec();
   }
 
   async findPendingRegistration(
     email: string,
   ): Promise<PendingRegistrationData | null> {
     const key = this.generateKey(email);
-    const pendingRegistrationData = await this.redisClient.get(key);
+    const pendingRegistrationData = await this.redisClient.hGetAll(key);
 
-    if (pendingRegistrationData === null) {
+    const {
+      name,
+      email: storedEmail,
+      mobile,
+      passwordHash,
+      otpHash,
+      failedAttempts,
+    } = pendingRegistrationData;
+
+    if (
+      !name ||
+      !storedEmail ||
+      !mobile ||
+      !passwordHash ||
+      !otpHash ||
+      !failedAttempts
+    ) {
       return null;
     }
 
-    const parsedData = JSON.parse(
-      pendingRegistrationData,
-    ) as PendingRegistrationData;
+    const attemptCount = Number(failedAttempts);
+    if (!Number.isInteger(attemptCount) || attemptCount < 0) {
+      return null;
+    }
 
-    return parsedData;
+    return {
+      name,
+      email: storedEmail,
+      mobile,
+      otpHash,
+      passwordHash,
+      failedAttempts: attemptCount,
+    };
   }
 
   async deletePendingRegistration(email: string): Promise<void> {
@@ -50,8 +87,23 @@ export class RedisPendingRegistrationRepository implements IPendingRegistrationR
 
   async incrementFailedAttempts(email: string): Promise<number | null> {
     const key = this.generateKey(email);
-    const pendingRegistrationData = await this.redisClient.get(key);
 
-    return null;
+    const result = await this.redisClient.eval(
+      this.incrementFailedAttemptsScript,
+      {
+        keys: [key],
+        arguments: [],
+      },
+    );
+
+    if (result === null) {
+      return null;
+    }
+
+    if (typeof result !== "number") {
+      throw new Error("Unexpected redis script response");
+    }
+
+    return result;
   }
 }
