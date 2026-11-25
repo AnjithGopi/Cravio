@@ -12,7 +12,7 @@ import { RequestRegistrationOTPUseCase } from "../../application/use-cases/user/
 import type { IUserRepository } from "../../application/interfaces/repositories/IUserRepository.js";
 import { UserRepository } from "../persistence/mongodb/repositories/UserRepository.js";
 import { CustomerAuthController } from "../../presentation/controllers/customer/CustomerAuthController.js";
-import type { RedisClientType } from "@redis/client";
+import type { RedisClientType } from "redis";
 import { RedisConnection } from "../persistence/redis/RedisConnection.js";
 import { VerifyRegistrationOTPUseCase } from "../../application/use-cases/user/VerifyRegistrationOTPUseCase.js";
 
@@ -25,9 +25,14 @@ container
   .bind<IPasswordService>(TYPES.IPasswordService)
   .to(BcryptPasswordService);
 container.bind<IEmailService>(TYPES.IEmailService).to(NodemailerEmailService);
+
 container
   .bind<IPendingRegistrationRepository>(TYPES.IPendingRegistrationRepository)
-  .to(RedisPendingRegistrationRepository);
+  .toDynamicValue((context) => {
+    const redisClient = context.get<RedisClientType>(TYPES.RedisClient);
+    return new RedisPendingRegistrationRepository(redisClient);
+  });
+
 container.bind<IUserRepository>(TYPES.IUserRepository).to(UserRepository);
 
 container
@@ -59,9 +64,13 @@ container
       TYPES.IPendingRegistrationRepository,
     );
     const otpService = context.get<IOTPService>(TYPES.IOTPService);
-    const userRepository=context.get<IUserRepository>(TYPES.IUserRepository)
+    const userRepository = context.get<IUserRepository>(TYPES.IUserRepository);
 
-    return new VerifyRegistrationOTPUseCase(pendingRepository, otpService,userRepository);
+    return new VerifyRegistrationOTPUseCase(
+      pendingRepository,
+      otpService,
+      userRepository,
+    );
   });
 container
   .bind<CustomerAuthController>(TYPES.CustomerAuthController)

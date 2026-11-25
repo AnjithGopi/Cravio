@@ -4,12 +4,8 @@ import type { IPendingRegistrationRepository } from "../../../../application/int
 import type { RedisClientType } from "redis";
 import { TYPES } from "../../../di/types.js";
 
-@injectable()
 export class RedisPendingRegistrationRepository implements IPendingRegistrationRepository {
-  constructor(
-    @inject(TYPES.RedisClient)
-    private readonly redisClient: RedisClientType,
-  ) {}
+  constructor(private readonly redisClient: RedisClientType) {}
   private readonly keyPrefix = "registration:otp:";
   private readonly expiresIn = 180;
   private readonly incrementFailedAttemptsScript = `local exists =redis.call("EXISTS",KEYS[1])
